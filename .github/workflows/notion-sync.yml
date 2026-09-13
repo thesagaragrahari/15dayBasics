@@ -13,15 +13,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Detect changed modules
         id: changes
         run: |
           echo "Changed files:"
-          git diff --name-only HEAD^ HEAD
 
-          CHANGED=$(git diff --name-only HEAD^ HEAD)
+          # Handle first commit separately
+          if git rev-parse HEAD^ >/dev/null 2>&1; then
+            CHANGED=$(git diff --name-only HEAD^ HEAD)
+          else
+            CHANGED=$(git ls-tree -r --name-only HEAD)
+          fi
+
+          echo "$CHANGED"
 
           echo "dsa=false" >> "$GITHUB_OUTPUT"
           echo "java=false" >> "$GITHUB_OUTPUT"
@@ -82,7 +88,6 @@ jobs:
               "Content-Type": "application/json"
           }
 
-          # Query the Notion data source for the matching Day.
           query_url = f"https://api.notion.com/v1/data_sources/{data_source_id}/query"
 
           query_body = {
