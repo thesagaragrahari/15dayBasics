@@ -35,15 +35,19 @@ The brute force approach is to use nested for loop where first loop decides the 
 It checked each posibilities to find sum of two number present in the same array. So in worst case scenario it will take O(n²) time complexity and constant space.
 - Time complexity :: O(n²)
 - Space complexity :: O(1)
-Without looking at a solution, ask yourself:
 
-> What information could I remember while scanning the array so that I don't have to repeatedly search the previous elements?
+Optimized Solution
 Document:
 - Your idea
-If I can get a element fix just need to find a single element it will take less time complexity.
-
+The idea is very simple to find the two numbers if target is given. We can find the element b for correspondance element a if I already know the element a. It is like for each a element there will be an element b such that 
+    target - a = b
+So we will store each a element and its index i in a HashMap.
 - Why it should be faster
-I can use hashmap to solve the problem
+Why HashMap ? :: It is a data structure that stores unique key and value pair. It has all unique keys and any key can be fetched in O(1) time complexity.
 - Time complexity :: O(n)
 - Space complexity :: O(n)
-The optimized solution is 
+
+
+What I intially missed. 
+I missed edge cases in brute force approach.
+I missed why need to use hashmap.
