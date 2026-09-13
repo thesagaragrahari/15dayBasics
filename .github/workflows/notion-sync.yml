@@ -1,0 +1,158 @@
+name: Sync Learning Progress to Notion
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect changed modules
+        id: changes
+        run: |
+          echo "Changed files:"
+          git diff --name-only HEAD^ HEAD
+
+          CHANGED=$(git diff --name-only HEAD^ HEAD)
+
+          echo "dsa=false" >> "$GITHUB_OUTPUT"
+          echo "java=false" >> "$GITHUB_OUTPUT"
+          echo "system_design=false" >> "$GITHUB_OUTPUT"
+          echo "journal=false" >> "$GITHUB_OUTPUT"
+          echo "day=" >> "$GITHUB_OUTPUT"
+
+          if echo "$CHANGED" | grep -qiE '^day-[0-9]+/dsa/'; then
+            echo "dsa=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          if echo "$CHANGED" | grep -qiE '^day-[0-9]+/java/'; then
+            echo "java=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          if echo "$CHANGED" | grep -qiE '^day-[0-9]+/system-design/'; then
+            echo "system_design=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          if echo "$CHANGED" | grep -qiE '^day-[0-9]+/journal/'; then
+            echo "journal=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          DAY=$(echo "$CHANGED" | grep -oE 'day-[0-9]+' | head -1 | sed 's/day-//')
+
+          echo "day=$DAY" >> "$GITHUB_OUTPUT"
+
+          echo "Detected Day: $DAY"
+
+      - name: Sync with Notion
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATA_SOURCE_ID: ${{ secrets.NOTION_DATA_SOURCE_ID }}
+          DAY: ${{ steps.changes.outputs.day }}
+          DSA: ${{ steps.changes.outputs.dsa }}
+          JAVA: ${{ steps.changes.outputs.java }}
+          SYSTEM_DESIGN: ${{ steps.changes.outputs.system_design }}
+          JOURNAL: ${{ steps.changes.outputs.journal }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import json
+          import urllib.request
+          import urllib.error
+
+          token = os.environ["NOTION_TOKEN"]
+          data_source_id = os.environ["NOTION_DATA_SOURCE_ID"]
+          day = os.environ["DAY"]
+
+          if not day:
+              print("No day detected. Nothing to sync.")
+              exit(0)
+
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Notion-Version": "2025-09-03",
+              "Content-Type": "application/json"
+          }
+
+          # Query the Notion data source for the matching Day.
+          query_url = f"https://api.notion.com/v1/data_sources/{data_source_id}/query"
+
+          query_body = {
+              "filter": {
+                  "property": "Day",
+                  "title": {
+                      "equals": f"Day {int(day)}"
+                  }
+              }
+          }
+
+          request = urllib.request.Request(
+              query_url,
+              data=json.dumps(query_body).encode(),
+              headers=headers,
+              method="POST"
+          )
+
+          try:
+              with urllib.request.urlopen(request) as response:
+                  result = json.loads(response.read())
+          except urllib.error.HTTPError as e:
+              print("Notion query failed:", e.code)
+              print(e.read().decode())
+              raise
+
+          results = result.get("results", [])
+
+          if not results:
+              raise Exception(f"Could not find Day {day} in Notion")
+
+          page_id = results[0]["id"]
+
+          properties = {}
+
+          if os.environ["DSA"] == "true":
+              properties["DSA"] = {"checkbox": True}
+
+          if os.environ["JAVA"] == "true":
+              properties["Java"] = {"checkbox": True}
+
+          if os.environ["SYSTEM_DESIGN"] == "true":
+              properties["System Design"] = {"checkbox": True}
+
+          if os.environ["JOURNAL"] == "true":
+              properties["Journal"] = {"checkbox": True}
+
+          properties["GitHub"] = {
+              "url": f"https://github.com/{os.environ['REPO']}/tree/main/day-{int(day):02d}"
+          }
+
+          update_url = f"https://api.notion.com/v1/pages/{page_id}"
+
+          update_body = {
+              "properties": properties
+          }
+
+          request = urllib.request.Request(
+              update_url,
+              data=json.dumps(update_body).encode(),
+              headers=headers,
+              method="PATCH"
+          )
+
+          try:
+              with urllib.request.urlopen(request) as response:
+                  print("Notion sync successful!")
+                  print(response.read().decode())
+          except urllib.error.HTTPError as e:
+              print("Notion update failed:", e.code)
+              print(e.read().decode())
+              raise
+          PY
