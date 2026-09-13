@@ -1,0 +1,466 @@
+name: Sync Assignments from Notion to GitHub
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    # Every 30 minutes
+    - cron: "*/30 * * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync Notion assignments to GitHub
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATA_SOURCE_ID: ${{ secrets.NOTION_DATA_SOURCE_ID }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import json
+          import urllib.request
+          import urllib.error
+          from pathlib import Path
+
+          TOKEN = os.environ["NOTION_TOKEN"]
+          DATA_SOURCE_ID = os.environ["NOTION_DATA_SOURCE_ID"]
+
+          NOTION_VERSION = "2025-09-03"
+
+          HEADERS = {
+              "Authorization": f"Bearer {TOKEN}",
+              "Notion-Version": NOTION_VERSION,
+              "Content-Type": "application/json",
+          }
+
+
+          # ---------------------------------------------------------
+          # Notion API helper
+          # ---------------------------------------------------------
+
+          def notion_request(url, method="GET", body=None):
+              data = None
+
+              if body is not None:
+                  data = json.dumps(body).encode("utf-8")
+
+              request = urllib.request.Request(
+                  url,
+                  data=data,
+                  headers=HEADERS,
+                  method=method,
+              )
+
+              try:
+                  with urllib.request.urlopen(request) as response:
+                      return json.loads(response.read().decode("utf-8"))
+
+              except urllib.error.HTTPError as e:
+                  print(f"Notion API error: {e.code}")
+                  print(e.read().decode())
+                  raise
+
+
+          # ---------------------------------------------------------
+          # Query all Day pages
+          # ---------------------------------------------------------
+
+          def get_day_pages():
+              url = (
+                  f"https://api.notion.com/v1/data_sources/"
+                  f"{DATA_SOURCE_ID}/query"
+              )
+
+              pages = []
+              cursor = None
+
+              while True:
+
+                  body = {
+                      "page_size": 100
+                  }
+
+                  if cursor:
+                      body["start_cursor"] = cursor
+
+                  result = notion_request(
+                      url,
+                      method="POST",
+                      body=body,
+                  )
+
+                  pages.extend(result.get("results", []))
+
+                  if not result.get("has_more"):
+                      break
+
+                  cursor = result.get("next_cursor")
+
+              return pages
+
+
+          # ---------------------------------------------------------
+          # Extract page title
+          # ---------------------------------------------------------
+
+          def get_page_title(page):
+
+              properties = page.get("properties", {})
+
+              day_property = properties.get("Day")
+
+              if day_property:
+                  title_items = day_property.get("title", [])
+
+                  if title_items:
+                      return "".join(
+                          item.get("plain_text", "")
+                          for item in title_items
+                      ).strip()
+
+              # Fallback: search any title property
+              for prop in properties.values():
+
+                  if prop.get("type") == "title":
+
+                      title_items = prop.get("title", [])
+
+                      if title_items:
+                          return "".join(
+                              item.get("plain_text", "")
+                              for item in title_items
+                          ).strip()
+
+              return ""
+
+
+          # ---------------------------------------------------------
+          # Extract Day number
+          # ---------------------------------------------------------
+
+          def get_day_number(title):
+
+              parts = title.strip().split()
+
+              if len(parts) != 2:
+                  return None
+
+              if parts[0].lower() != "day":
+                  return None
+
+              try:
+                  return int(parts[1])
+              except ValueError:
+                  return None
+
+
+          # ---------------------------------------------------------
+          # Get all blocks belonging to a page
+          # ---------------------------------------------------------
+
+          def get_blocks(block_id):
+
+              url = (
+                  f"https://api.notion.com/v1/blocks/"
+                  f"{block_id}/children?page_size=100"
+              )
+
+              blocks = []
+              cursor = None
+
+              while True:
+
+                  current_url = url
+
+                  if cursor:
+                      current_url += f"&start_cursor={cursor}"
+
+                  result = notion_request(current_url)
+
+                  blocks.extend(result.get("results", []))
+
+                  if not result.get("has_more"):
+                      break
+
+                  cursor = result.get("next_cursor")
+
+              return blocks
+
+
+          # ---------------------------------------------------------
+          # Rich text conversion
+          # ---------------------------------------------------------
+
+          def rich_text_to_markdown(items):
+
+              output = ""
+
+              for item in items:
+
+                  text = item.get("plain_text", "")
+
+                  annotations = item.get("annotations", {})
+
+                  if annotations.get("code"):
+                      text = f"`{text}`"
+
+                  if annotations.get("bold"):
+                      text = f"**{text}**"
+
+                  if annotations.get("italic"):
+                      text = f"*{text}*"
+
+                  if annotations.get("strikethrough"):
+                      text = f"~~{text}~~"
+
+                  href = item.get("href")
+
+                  if href:
+                      text = f"[{text}]({href})"
+
+                  output += text
+
+              return output
+
+
+          # ---------------------------------------------------------
+          # Convert Notion blocks to Markdown
+          # ---------------------------------------------------------
+
+          def blocks_to_markdown(blocks, indent=""):
+
+              lines = []
+
+              for block in blocks:
+
+                  block_type = block.get("type")
+
+                  data = block.get(block_type, {})
+
+                  rich_text = data.get("rich_text", [])
+
+                  text = rich_text_to_markdown(rich_text)
+
+                  if block_type == "paragraph":
+
+                      if text:
+                          lines.append(indent + text)
+                          lines.append("")
+
+                  elif block_type == "heading_1":
+
+                      lines.append(indent + "# " + text)
+                      lines.append("")
+
+                  elif block_type == "heading_2":
+
+                      lines.append(indent + "## " + text)
+                      lines.append("")
+
+                  elif block_type == "heading_3":
+
+                      lines.append(indent + "### " + text)
+                      lines.append("")
+
+                  elif block_type == "bulleted_list_item":
+
+                      lines.append(indent + "- " + text)
+
+                  elif block_type == "numbered_list_item":
+
+                      lines.append(indent + "1. " + text)
+
+                  elif block_type == "to_do":
+
+                      checked = data.get("checked", False)
+
+                      checkbox = "x" if checked else " "
+
+                      lines.append(
+                          indent + f"- [{checkbox}] " + text
+                      )
+
+                  elif block_type == "quote":
+
+                      lines.append(indent + "> " + text)
+                      lines.append("")
+
+                  elif block_type == "callout":
+
+                      lines.append(indent + "> " + text)
+                      lines.append("")
+
+                  elif block_type == "code":
+
+                      language = data.get("language", "")
+
+                      code_text = rich_text_to_markdown(rich_text)
+
+                      lines.append(indent + f"```{language}")
+                      lines.append(code_text)
+                      lines.append(indent + "```")
+                      lines.append("")
+
+                  elif block_type == "divider":
+
+                      lines.append(indent + "---")
+                      lines.append("")
+
+                  elif block_type == "bookmark":
+
+                      url = data.get("url")
+
+                      if url:
+                          lines.append(indent + f"[{url}]({url})")
+                          lines.append("")
+
+                  elif block_type == "image":
+
+                      image_type = data.get("type")
+
+                      if image_type == "external":
+                          url = data.get("external", {}).get("url")
+                      else:
+                          url = data.get("file", {}).get("url")
+
+                      if url:
+                          lines.append(indent + f"![]({url})")
+                          lines.append("")
+
+                  elif block_type == "child_page":
+
+                      child_title = data.get("title", "")
+
+                      lines.append(
+                          indent + f"### {child_title}"
+                      )
+                      lines.append("")
+
+                  # -------------------------------------------------
+                  # Handle nested blocks
+                  # -------------------------------------------------
+
+                  if block.get("has_children"):
+
+                      child_blocks = get_blocks(block["id"])
+
+                      nested = blocks_to_markdown(
+                          child_blocks,
+                          indent=indent + "  "
+                      )
+
+                      if nested.strip():
+                          lines.append(nested)
+
+              return "\n".join(lines)
+
+
+          # ---------------------------------------------------------
+          # Main sync
+          # ---------------------------------------------------------
+
+          print("Starting Notion → GitHub sync...")
+
+          pages = get_day_pages()
+
+          print(f"Found {len(pages)} Notion pages.")
+
+          synced = 0
+
+          for page in pages:
+
+              title = get_page_title(page)
+
+              if not title:
+                  continue
+
+              day_number = get_day_number(title)
+
+              if day_number is None:
+                  print(f"Skipping page with title: {title}")
+                  continue
+
+              print(f"Syncing {title}...")
+
+              page_id = page["id"]
+
+              blocks = get_blocks(page_id)
+
+              markdown = blocks_to_markdown(blocks)
+
+              # -----------------------------------------------------
+              # Add generated-file notice
+              # -----------------------------------------------------
+
+              header = (
+                  f"# {title}\n\n"
+                  "> ⚠️ **This file is automatically generated from Notion.**\n"
+                  "> Do not put your personal solutions or notes here.\n\n"
+                  "---\n\n"
+              )
+
+              content = header + markdown.strip() + "\n"
+
+              directory = Path(
+                  f"day-{day_number:02d}"
+              )
+
+              directory.mkdir(
+                  parents=True,
+                  exist_ok=True
+              )
+
+              output_file = directory / "README.md"
+
+              old_content = ""
+
+              if output_file.exists():
+                  old_content = output_file.read_text(
+                      encoding="utf-8"
+                  )
+
+              if old_content == content:
+                  print(
+                      f"{output_file} is already up to date."
+                  )
+                  continue
+
+              output_file.write_text(
+                  content,
+                  encoding="utf-8"
+              )
+
+              print(f"Updated {output_file}")
+
+              synced += 1
+
+
+          print(
+              f"Sync completed. Updated {synced} assignment file(s)."
+          )
+          PY
+
+      - name: Commit assignment changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add day-*/README.md
+
+          if git diff --cached --quiet; then
+            echo "No assignment changes to commit."
+            exit 0
+          fi
+
+          git commit -m "sync: update assignments from Notion"
+          git push
