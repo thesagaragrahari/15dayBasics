@@ -14,7 +14,7 @@ class JavaStringBasics{
         String s1 = "Sagar"; // creating from string pool
         String s2 = new String("Sagar"); // creating a brand new object
         System.out.println(s1==s2); // both are referencing diff vars so it will return false
-        System.out.println(s1.equals(s2));// even though both are referencing diff vars but their hash will be the same so will return true
+        System.out.println(s1.equals(s2));// even though both are referencing diff vars but their content is same so will return true
 
         /* String immutability */
         String s3 = "Sagar";
@@ -24,11 +24,8 @@ class JavaStringBasics{
         System.out.println(s3==s1); // After concating s3 doesn't change the actaul object instead it creates a new one and points to that new objects so will return false.
 
         StringBuilder sb = new StringBuilder("Sagar");
-        System.out.println(Integer.toHexString(System.identityHashCode(sb)));
         sb.append(" Agrahari");
-        System.out.println(Integer.toHexString(System.identityHashCode(sb)));
-        // These both lines will print same address because StingBuilder don't change the creates new object just like String but it modifies the same object.
-
+        // Conceptually when we append it doesn't create new object or refers to another object it just modifies the same object
 
         /*
         Finally we can say when we need immutability and reusability like storing password or auth token we should use string

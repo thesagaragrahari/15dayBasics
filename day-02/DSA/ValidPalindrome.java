@@ -53,5 +53,26 @@ public class ValidPalindrome {
     }
 
 
+    public boolean isPalindromeFinalSolution(String s) {
+        int l = 0;
+        int r = s.length() - 1;
+        while (l < r) {
+            if(!Character.isLetterOrDigit(s.charAt(l)))
+                l++;
+            else if(!Character.isLetterOrDigit(s.charAt(r)))
+                r--;
+            else if (Character.isLetterOrDigit(s.charAt(l)) && Character.isLetterOrDigit(s.charAt(r))){
+                if (Character.toLowerCase(s.charAt(l)) == Character.toLowerCase(s.charAt(r))) {
+                    l++;
+                    r--;
+                } else {
+                    return false;
+                }
+            }else{
+                return false;
+            }
+        }
+        return true;
+    }
 
 }

@@ -8,8 +8,8 @@
 - Same-direction pointers
   - When we use two pointers pointing at different element / indeces and uses it to increment at same direction. The examples are sliding window, cycle detection in linked list.
 - How pointer movement can eliminate unnecessary work
-  - If we have to find a subsequence of String. We generally need to use two for loops which causes O(nXn) complexity. If we use two pointers one for start and one for end it will reduces the complexity to O(nxlength_of_target) .
+  - If we have to find a subsequence of String. We generally need to use two for loops which causes O(nXn) complexity. If we use two pointers one for start and one for end it will reduces the complexity.
 - When two pointers can reduce time complexity
-  - It can reduce time complexity . The example is slow fast pointer . In average case we don't need to achieve O(n) time complexity. We get answers before that.
+  - It can reduce time complexity . The example is slow-fast pointer . It totally depends on algorithm we are using and the approaches used in the solution.
 - Why two pointers do **not** automatically mean `O(n)` — complexity depends on the actual algorithm
-  - Because O(n) is calculated for worst case scenarios and worst case scenario may two pointer approach will be work same as brute force. So it is not gauranteed.
+  - Two pointer approach directly doesn't gaurantee of O(n). It depends on algorithm and data structure too going to use for a problem.
