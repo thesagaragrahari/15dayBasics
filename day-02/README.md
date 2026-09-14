@@ -5,4 +5,108 @@
 
 ---
 
+# Day 02 — Java Foundations + Two Pointers
 
+## Today's Goal
+
+Build stronger Java fundamentals while learning your first important array/string problem-solving pattern.
+
+## 1. Java — String Foundations
+
+Study and understand:
+
+- What is `String` in Java?
+- Why is `String` a class/object rather than a primitive type?
+- String immutability
+- String literals and `new String(...)`
+- `==` vs `.equals()` for Strings
+- Basic methods: `length()`, `charAt()`, `substring()`
+- Why repeated String concatenation can be inefficient
+- What `StringBuilder` is and when it is useful
+### Java Experiment
+
+Create `Java/JavaStringBasics.java` and write small experiments demonstrating:
+
+1. `==` vs `.equals()`
+1. String immutability
+1. String concatenation
+1. A simple use of `StringBuilder`
+Do not just print results. Add short comments explaining what each experiment proves.
+
+## 2. DSA — Two Pointer Technique
+
+Understand:
+
+- What the two-pointer technique is
+- Why we use it
+- Opposite-direction pointers
+- Same-direction pointers
+- How pointer movement can eliminate unnecessary work
+- When two pointers can reduce time complexity
+- Why two pointers do **not** automatically mean `O(n)` — complexity depends on the actual algorithm
+### Problem
+
+LeetCode #125 — **Valid Palindrome**
+
+First solve it in a straightforward way.
+
+Then derive an optimized two-pointer solution that works directly on the original String without creating an unnecessary cleaned/reversed copy.
+
+Create:
+
+`DSA/TwoPointers.java`
+
+## 3. Think Before Coding
+
+Before writing the optimized solution, answer in your own words:
+
+1. What is the two-pointer technique?
+1. Why can it make an algorithm more efficient?
+1. Why can the left and right pointers move toward each other safely in a palindrome problem?
+1. What unnecessary work does the optimized solution avoid?
+1. What are the time and auxiliary-space complexities of both approaches?
+## 4. Java + DSA Connection
+
+Think about this question:
+
+> If Java Strings are immutable, what happens when you repeatedly create new Strings while solving a problem?
+
+Understand the connection, but do **not** force `StringBuilder` into the final palindrome solution if it is not needed.
+
+## 5. Mentor Challenge
+
+Do the work yourself first.
+
+Recommended workflow:
+
+1. Learn/revise the concepts from reliable resources.
+1. Close the resource and explain the concepts in your own words.
+1. Implement the straightforward solution.
+1. Test it with your own examples and edge cases.
+1. Think about how to optimize it.
+1. Implement the optimized solution.
+1. Document what you learned and where you initially struggled.
+1. Send your explanation/code to me for review.
+I will review your **thinking first**, then your implementation, and only then suggest corrections or improvements.
+
+## Deliverables
+
+- `Java/JavaStringBasics.java`
+- `DSA/TwoPointers.java`
+- Clear explanation of String concepts
+- Explanation of the two-pointer technique
+- Brute-force/straightforward Valid Palindrome approach
+- Optimized two-pointer Valid Palindrome approach
+- Complexity comparison
+- Short reflection on what you learned
+## Completion Criteria
+
+Day 02 is complete when you can:
+
+- Explain String immutability without memorizing a definition.
+- Explain `==` vs `.equals()` for Strings.
+- Explain why `StringBuilder` exists.
+- Explain the two-pointer technique using your own example.
+- Explain why the optimized palindrome solution works.
+- State the time and space complexity of both approaches.
+- Defend your code during mentor review.
