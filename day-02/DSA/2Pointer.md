@@ -1,0 +1,15 @@
+- What the two-pointer technique is
+  - The two pointer technique is a technique in which we use two variables and points to a data structure on which have to perform some operations. 
+  - According to usecase and algorithm we points from these pointer different indeces, uses with different speed, increment / decrement the pointer values.
+- Why we use it
+  - The general use case of using two pointer approach it to reduce checking same or similiar condition multiple times.
+- Opposite-direction pointers
+  - I can explain it using a use case of palindrome. We can points from one pointer at start and another at end. if both are fulfilling condition we make the progress. start goes increment and end comes decrement. if both pointer meets or passes each other its mean it is valid palindrome.
+- Same-direction pointers
+  - When we use two pointers pointing at different element / indeces and uses it to increment at same direction. The examples are sliding window, cycle detection in linked list.
+- How pointer movement can eliminate unnecessary work
+  - If we have to find a subsequence of String. We generally need to use two for loops which causes O(nXn) complexity. If we use two pointers one for start and one for end it will reduces the complexity to O(nxlength_of_target) .
+- When two pointers can reduce time complexity
+  - It can reduce time complexity . The example is slow fast pointer . In average case we don't need to achieve O(n) time complexity. We get answers before that.
+- Why two pointers do **not** automatically mean `O(n)` — complexity depends on the actual algorithm
+  - Because O(n) is calculated for worst case scenarios and worst case scenario may two pointer approach will be work same as brute force. So it is not gauranteed.
