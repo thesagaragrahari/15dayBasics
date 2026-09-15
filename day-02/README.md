@@ -110,3 +110,11 @@ Day 02 is complete when you can:
 - Explain why the optimized palindrome solution works.
 - State the time and space complexity of both approaches.
 - Defend your code during mentor review.
+## 👨‍🏫 Teacher's Note — Final Review
+
+- String is an immutable Java class/reference type; an operation that appears to modify a String creates/references another String rather than changing the original object's state.
+- Avoid describing the old literal as simply remaining in the String Pool waiting for garbage collection. The String Pool is managed specially by the JVM, so keep the explanation focused on immutability and pooling rather than object-lifetime assumptions.
+- `==` compares references; `.equals()` compares String contents.
+- `StringBuilder` is mutable and useful for repeated modifications/concatenation, but it is not required for every String problem.
+- Two-pointer palindrome reasoning and complexity analysis were understood and passed.
+**Day 02 result: DONE — mentor review accepted with the above concept recorded for revision.**

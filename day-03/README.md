@@ -148,3 +148,20 @@ Day 03 is complete only after:
 1. You make any requested corrections and push the final commit.
 1. The Day 03 Notion status is then marked **Done**.
 **Rule:** Do not put personal solutions in the assignment itself. Notion is the source of the assignment; GitHub is where you write your answers and implementation.
+
+## 📝 Post-Sprint Reflection File
+
+Create `reflection.md` in `day-03` for broader, free-form reflection across the first three days. This is intentionally open-ended; use it to record what became clearer, what still feels weak, how your problem-solving changed, and what you want to improve next.
+
+> `DSA/TwoSumReview.md` is intentionally waived for Day 03 completion and can be revisited later.
+
+## 👨‍🏫 Teacher's Note — Final Review
+
+- **Collections:** Your core mental model is good: List/Set/Map, ArrayList vs LinkedList, and choosing a structure based on the information an algorithm needs.
+- **ArrayList:** Remember `get()` and `set()` are O(1); middle insertion/removal can be O(n) because elements may need shifting.
+- **LinkedList:** Indexed access is O(n). Insertion/removal is only O(1) once the relevant node/position is already known; finding it can cost O(n).
+- **Hashing:** Think `hashCode → bucket → equals`. A hash collision is possible because different keys can lead to the same hash/bucket.
+- **equals/hashCode:** `equals()` answers logical equality; `hashCode()` supplies the hash value used by hash-based collections. Equal objects must have equal hash codes, but equal hash codes do not prove equality.
+- **DSA:** Your HashSet Contains Duplicate solution and frequency-map anagram thinking demonstrate that you are starting to recognize hashing as a reusable problem-solving pattern rather than just a Java collection.
+- **Next focus:** Continue improving precision in complexity analysis and Java collection internals. Don't worry about grammar in your notes; technical correctness comes first.
+**Day 03 result: DONE — mentor review passed.**
