@@ -5,4 +5,146 @@
 
 ---
 
+# Day 03 — Java Collections + Hashing + DSA Application
 
+## 🎯 Goal
+
+Understand Java's core collection choices and the hashing mental model well enough to choose the right data structure during DSA and backend work.
+
+## 👨‍🏫 Teacher's Note
+
+### 1. Collections mental model
+
+- `List` → ordered elements, duplicates allowed.
+- `Set` → uniqueness; duplicates are not retained.
+- `Map` → key → value relationship. `Map` is not a subtype of `Collection`.
+- `Collection` is an interface; `Collections` is a utility class.
+### 2. ArrayList
+
+Think of `ArrayList` as a dynamically growing array.
+
+- `get(index)` / `set(index)` → O(1).
+- Search by value → O(n).
+- Middle insertion/removal can require shifting → O(n).
+- Adding at the end is O(1) amortized because occasional resizing costs O(n).
+### 3. LinkedList
+
+Think in terms of connected nodes.
+
+- Access by index requires traversal → O(n).
+- Given the relevant node/position, link changes for insertion/removal can be O(1).
+- Do not memorize “LinkedList insertion is always O(1)” without considering the cost of finding the position.
+### 4. Hashing
+
+Mental model:
+
+`key → hashCode/hash function → bucket → lookup`
+
+Different keys can map to the same bucket: this is a collision.
+
+Hash-based collections provide average O(1) lookup/add/remove under normal conditions, not a universal O(1) guarantee.
+
+### 5. HashMap and HashSet
+
+- `HashMap` stores key → value.
+- Duplicate keys replace the previous value.
+- `HashSet` stores unique elements and uses hashing to support fast average-case lookup.
+### 6. equals() and hashCode()
+
+The key contract is:
+
+`a.equals(b) == true` ⇒ `a.hashCode() == b.hashCode()`.
+
+The reverse is not guaranteed: equal hash codes can occur because of collisions.
+
+A useful mental model is: hash code helps narrow the search; equality determines logical equality.
+
+### 7. DSA hashing patterns
+
+- Frequency counting → `HashMap`.
+- Seen/existence tracking → `HashSet`.
+- Key-based lookup → `HashMap`.
+- Before choosing a collection, ask what information the algorithm needs to remember.
+## 🧠 Assignment — Part A: Explain
+
+Answer in your own words. Do not copy definitions from a course or ChatGPT.
+
+1. Why does Java need the Collections Framework when arrays already exist?
+1. Explain `List`, `Set`, and `Map` with one practical example for each.
+1. Why is `Map` not a subtype of `Collection`?
+1. Explain how `ArrayList` is different from a normal array internally/conceptually.
+1. Why is `ArrayList.get(index)` O(1)?
+1. Why can inserting/removing in the middle of an `ArrayList` be O(n)?
+1. Explain why `LinkedList.get(index)` is O(n).
+1. Explain hashing using your own bucket/locker analogy.
+1. What is a hash collision and why can it happen?
+1. Why do we say HashMap/HashSet operations are average-case O(1), rather than simply O(1)?
+1. What happens when the same key is inserted into a HashMap twice?
+1. Explain the relationship between `equals()` and `hashCode()`.
+## 💻 Assignment — Part B: Java Experiments
+
+Create `day-03/java/CollectionsBasics.java` and demonstrate:
+
+1. `ArrayList`: add, get, update, remove, search.
+1. `LinkedList`: add, get, remove; add a short comment explaining why indexed access differs from ArrayList.
+1. `HashSet`: add duplicates and demonstrate that duplicates are not retained.
+1. `HashMap`: put, get, containsKey, remove, and duplicate-key replacement.
+1. Create two separate `String` objects with the same content and demonstrate `equals()` and `hashCode()` behavior.
+Add comments explaining what you observe rather than only printing output.
+
+## 🧩 Assignment — Part C: DSA
+
+Solve these without looking at solutions first.
+
+### Problem 1 — Contains Duplicate
+
+Given an integer array, return `true` if any value appears at least twice; otherwise return `false`.
+
+Do both:
+
+- straightforward/brute-force approach
+- HashSet-based optimized approach
+Explain why the second approach reduces the time complexity.
+
+### Problem 2 — Valid Anagram
+
+Given two strings, determine whether one is an anagram of the other.
+
+Start with your straightforward idea, then build a HashMap/frequency-based solution.
+
+Explain:
+
+- what information you store
+- why HashMap is appropriate
+- time complexity
+- space complexity
+### Problem 3 — Revisit Two Sum
+
+Look back at Day 01 and explain why the HashMap solution is an example of the hashing/key-lookup pattern.
+
+## 📝 Reflection
+
+Write 5–10 lines answering:
+
+- Which collection would you choose for uniqueness, and why?
+- Which collection would you choose for key → value lookup, and why?
+- What changed in your understanding of HashMap after learning about buckets/collisions?
+- Give one situation where choosing the wrong data structure could make an algorithm slower.
+## 📦 Deliverables
+
+- `java/CollectionsBasics.java`
+- `DSA/ContainsDuplicate.java`
+- `DSA/ValidAnagram.java`
+- `DSA/TwoSumReview.md` (or equivalent explanation file)
+- `COLLECTIONS.md` containing your Part A answers and reflection
+## ✅ Completion Criteria
+
+Day 03 is complete only after:
+
+1. Your answers are written in your own words.
+1. Java experiments run correctly.
+1. DSA solutions are pushed to GitHub.
+1. Mentor review passes both your **thinking and implementation**.
+1. You make any requested corrections and push the final commit.
+1. The Day 03 Notion status is then marked **Done**.
+**Rule:** Do not put personal solutions in the assignment itself. Notion is the source of the assignment; GitHub is where you write your answers and implementation.
