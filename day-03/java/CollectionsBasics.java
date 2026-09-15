@@ -13,9 +13,11 @@ class CollectionsBasics{
         List<Integer> list = new ArrayList<>();
         list.add(1); // adds value a 0 index avarage motarized O(1)
         list.add(2); // do same for 1st index 
+        list.add(4);
+        list.add(5);
         list.get(0); //return the value at index 0 O(1)
-        list.set(0,10);// it updates the value at index 0 average O(n)
-        list.remove(1); // it removes the element at index 1 average O(n)
+        list.set(2,10);// it shifts all values after index 2 to next index and at index 2 stores the element. So it will take avarage O(n) for shifting elements not accessing time.
+        list.remove(2); // it removes the element at index 2 and shift the remaining elements to one index prior
         list.indexOf(2); // it returns the index of the first occurance of the elements else -1 average O(n)
         list.contains(2); // it returns boolean and check if data exists of not average O(n)
         return list;
@@ -25,9 +27,12 @@ class CollectionsBasics{
         LinkedList<Integer> list = new LinkedList<>();
         list.add(1); // adds value a 0 index avarage
         list.add(2); // do same for 1st index 
+        list.add(3);
+        list.add(4);
+        list.add(5);
         list.get(1); //return the value at index 1 but in traverse from start to get that index 
-        list.set(1,10);// it updates the value at index 1 but takes only time to reach the pointer there . but insertion cost O(1) 
-        list.remove(1); // it removes the element at index 1 but deletion costs O(1) where as it takes O(n) to reach there
+        list.set(3,10);// In this pointer takes overall O(n) to reach at index 3 and the updation time is O(1) so total cost = O(n) + O(1) ~ O(n) average
+        list.remove(1); // same as updation.
         list.contains(2); // it returns boolean and check if data exists of not average O(n)
         return list;
     }
@@ -62,8 +67,30 @@ class CollectionsBasics{
         System.out.println(map);
         map.put("Sakshi","6jun");// it will update as we know the key already exists
         System.out.println(map);
+        map.remove("Sakshi");// if we remove the key it will remove the whole object also it doesn't restore the previous value
 
+        System.out.println(map);
 
+        System.out.println(map.get("Angel"));// it will return the value associated with the given key.
+
+    }
+
+    public static void equalsVsHash(){
+        String str = "Sagar";
+        String str2 = new String("Sagar");
+        if(str.equals(str2))
+            System.out.println("Equals is working fine");
+
+        int hstr = str.hashCode();
+        int hstr2 = str2.hashCode();
+
+        if(hstr == hstr2)
+            System.out.println("Hashcodes are also same");
+        int hstr3 = "Angel".hashCode();
+        if(hstr3==hstr2)
+            System.out.println("Hashcode for diff string are same");
+        else
+            System.out.println("hash collision not happend for these strings");
     }
 
     public static void main(String args[]){
@@ -71,5 +98,6 @@ class CollectionsBasics{
         System.out.println(linkedListBasics());
         setBasics();
         mapBasics();
+        equalsVsHash();
     }
 }

@@ -14,6 +14,7 @@
   1. ArrayList can be defined as dynamic array. Concepty it also uses index and value and stores data like array does. But the key difference it can resize automatically. When a new element need to insert it checks if size is full it creates a new bigger array and copies whole data and insert new one to that array. It all happens underhood and we don't need to care about it.
 5. Why is `ArrayList.get(index)` O(1)?
   1. ArrayList uses the same calculation to find the element. ArrayList's base address+(size of element stored x index ) . It doesn't need to traverse from start to that index. It uses random access just like array.
+  2. ArrayList uses arrays under the hood and access the elements using index same as arrays which costs O(1) . 
 6. Why can inserting/removing in the middle of an `ArrayList` be O(n)?
   1. When we need to perform operation like insertion / removing in the middle , the arraylist elements need to be shifted and at worst case the whole list need to be shifted so it causes the complexity of O(n) .
 7. Explain why `LinkedList.get(index)` is O(n).
@@ -21,11 +22,10 @@
 8. Explain hashing using your own bucket/locker analogy.
   1. For example HashMap uses hashCode to store the elements. It is like using a array of buckets/lockers. The HashMap uses hashfunction to hash the element. When any elements comes to get inserted the hashfunction hashes it and then it get decided in which bucket it will be store. Sometimes multiple values get inserted in same bucket so these bucket then implements as linkedlist.
 9. What is a hash collision and why can it happen?
-  1. Multiple object can generates same hashcode using a hashfunction when it happens it is called hash collision. It happens because of algorithm used in hash function mainly.
+  1. Different objects can create same hash or can belong to same bucket of a hashmap. It is called hash collision.
 10. Why do we say HashMap/HashSet operations are average-case O(1), rather than simply O(1)?
   1. HashMap/HashSet uses hashCode to store the elements. It is like using a array of buckets/lockers. each bucket stores a list of connected nodes. So when need to fetch data we generally don't have to traverse all over the HashMap/HashSet. We just look up to a particular bucket.
 11. What happens when the same key is inserted into a HashMap twice?
   1. When we insert same key with some value twice in the HashMap the second value with the same key overrides.
 12. Explain the relationship between `equals()` and `hashCode()`.
-  1. equals() compares the content of two objects. But hashCode() uses hash function to hash both object and compares their hashes.
-    two objects are equals then their hashcode will be the same. But vice versa can be true or false.
+  1. equals() compares the content of two objects. But hashCode() uses hash function to hash both object which helps to decide the object belong to which buckets.
